@@ -35,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,7 +62,8 @@ import com.studies.skinlens.Presentation.Screens.CameraScreen.DiseaseAnalyzer
 import com.studies.skinlens.ui.theme.SkinLensTheme
 
 class MainActivity : ComponentActivity() {
-
+    // String to store the selected text
+    var mSelectedText: MutableState<String> = mutableStateOf("")
     private val cameraPermissionRequest =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -103,8 +105,14 @@ class MainActivity : ComponentActivity() {
 
                     var classifications by remember { mutableStateOf(emptyList<Recognition>()) }
 
+                    var device=Device.CPU
+                    if(mSelectedText.value.isEmpty() || mSelectedText.value=="CPU"){
+                        device=Device.CPU
+                    }else{
+                        device=Device.GPU
+                    }
 
-                    val classifier = Classifier.create(this, Device.CPU, 1)
+                    val classifier = Classifier.create(this, device, 1)
                     val analyzer = remember {
                         DiseaseAnalyzer(
                             classifier =classifier,
@@ -183,109 +191,109 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
+    @Composable
+    fun dropDownMenu(modifier: Modifier = Modifier) {
+        // Boolean to store the expanded state of the dropdown
+        var mExpanded by remember { mutableStateOf(false) }
+
+        // List of options for the dropdown menu
+        val mCities = listOf("CPU", "GPU")
 
 
-@Composable
-fun dropDownMenu(modifier: Modifier = Modifier) {
-    // Boolean to store the expanded state of the dropdown
-    var mExpanded by remember { mutableStateOf(false) }
 
-    // List of options for the dropdown menu
-    val mCities = listOf("CPU", "GPU")
+        // To store the size of the Text composable
+        var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
 
-    // String to store the selected text
-    var mSelectedText by remember { mutableStateOf("") }
+        // Icon that changes based on the expanded state
+        val icon = if (mExpanded)
+            Icons.Filled.KeyboardArrowUp
+        else
+            Icons.Filled.KeyboardArrowDown
 
-    // To store the size of the Text composable
-    var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    // Icon that changes based on the expanded state
-    val icon = if (mExpanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
-
-    Column(modifier = modifier,
+        Column(modifier = modifier,
         ) {
 
 
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically, // Vertically center the items in the Row
-            horizontalArrangement = Arrangement.Center // Horizontally center items in the Row
-        ) {
-            Text(text = "Device",
-                modifier=Modifier
-                   .padding(end=4.dp)
-
-                    .wrapContentSize(),
-                textAlign = TextAlign.Center,
-
-                color = Color.White
-            )
-
-
-            // Create a non-editable Box with Text
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        // Assign the width of the Text to the dropdown
-                        mTextFieldSize = coordinates.size.toSize()
-                    }
-                    .clickable { mExpanded = !mExpanded }
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .border(
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(16.dp)
+                    .padding(6.dp),
+                verticalAlignment = Alignment.CenterVertically, // Vertically center the items in the Row
+                horizontalArrangement = Arrangement.Center // Horizontally center items in the Row
             ) {
-                Text(
-                    text = if (mSelectedText.isEmpty()) "CPU" else mSelectedText,
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 16.sp
-                    )
+                Text(text = "Device",
+                    modifier=Modifier
+                        .padding(end=4.dp)
+
+                        .wrapContentSize(),
+                    textAlign = TextAlign.Center,
+
+                    color = Color.White
                 )
 
-                // Trailing icon
-                Icon(
-                    icon,
-                    contentDescription = null,
+
+                // Create a non-editable Box with Text
+                Box(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            // Assign the width of the Text to the dropdown
+                            mTextFieldSize = coordinates.size.toSize()
+                        }
                         .clickable { mExpanded = !mExpanded }
-                )
+                        .background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .border(
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = if (mSelectedText.value.isEmpty()) "CPU" else mSelectedText.value,
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 16.sp
+                        )
+                    )
+
+                    // Trailing icon
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clickable { mExpanded = !mExpanded }
+                    )
+                }
             }
-        }
 
 
-        // Create a DropdownMenu for the list of devices
-        DropdownMenu(
-            expanded = mExpanded,
-            onDismissRequest = { mExpanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
-        ) {
-            mCities.forEach { label ->
-                DropdownMenuItem(onClick = {
-                    mSelectedText = label
-                    mExpanded = false
-                }) {
-                    Text(text = label)
+            // Create a DropdownMenu for the list of devices
+            DropdownMenu(
+                expanded = mExpanded,
+                onDismissRequest = { mExpanded = false },
+                modifier = Modifier
+                    .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+            ) {
+                mCities.forEach { label ->
+                    DropdownMenuItem(onClick = {
+                        mSelectedText.value = label
+                        mExpanded = false
+                    }) {
+                        Text(text = label)
+                    }
                 }
             }
         }
     }
 }
+
+
+
 
 
 
