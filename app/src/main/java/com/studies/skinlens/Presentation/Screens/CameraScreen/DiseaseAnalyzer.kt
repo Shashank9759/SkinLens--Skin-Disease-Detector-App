@@ -19,7 +19,7 @@ class DiseaseAnalyzer(
 
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(image: ImageProxy) {
-       if (frameSkipCounter % 20 == 0) {
+       if (frameSkipCounter % 40 == 0) {
             val rotationDegrees = image.imageInfo.rotationDegrees
             val mediaImage = image.image
             // Convert ImageProxy to Bitmap
