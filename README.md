@@ -11,7 +11,7 @@
 
 ## Screenshot
 
-<img src="https://github.com/user-attachments/assets/5c787d51-ef38-4289-a501-788e68fbe0be" alt="SkinLens Screenshot" width="400"/>
+<img src="https://github.com/user-attachments/assets/5c787d51-ef38-4289-a501-788e68fbe0be" alt="SkinLens Screenshot" width="200"/>
 
 *Screenshot showing the SkinLens interface with real-time skin disease detection.*
 
